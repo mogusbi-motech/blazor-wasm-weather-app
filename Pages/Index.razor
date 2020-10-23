@@ -1,0 +1,47 @@
+﻿@page "/"
+@using Models
+@inject HttpClient Http
+@inject IConfiguration Configuration
+
+<LocationForm OnSubmit="GetWeather" />
+
+<WeatherResults results="results" />
+
+@code
+{
+    private List<Result> results { get; set; } = new List<Result>();
+
+    private async Task<string> GenerateParams(Dictionary<string, string> urlParams)
+    {
+        HttpContent content = new FormUrlEncodedContent(urlParams);
+
+        return await content.ReadAsStringAsync();
+    }
+
+    private async Task GetWeather(string city)
+    {
+        Dictionary<string, string> urlParams = new Dictionary<string, string>();
+        Settings settings = Configuration.Get<Settings>();
+        
+        urlParams.Add("APPID", settings.ApiKey);
+        urlParams.Add("cnt", "8");
+        urlParams.Add("q", city);
+        urlParams.Add("units", "metric");
+
+        string query = await GenerateParams(urlParams);
+        Weather weather = await Http.GetFromJsonAsync<Weather>($"https://api.openweathermap.org/data/2.5/forecast?{query}");
+
+        ProcessResult(weather);
+    }
+
+    private void ProcessResult(Weather weather)
+    {
+        results.Add(new Result {
+            city = weather.city.name,
+            weather = weather.list.Select(a => new ResultWeather {
+                temperature = a.main.temp,
+                timestamp = a.dt
+            }).ToArray()
+        });
+    }
+}

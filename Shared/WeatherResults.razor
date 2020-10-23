@@ -1,0 +1,51 @@
+@using Models
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">City</th>
+
+            @foreach (var time in times)
+            {
+                <th scope="col">@time</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Result result in results)
+        {
+            <tr>
+                <td scope="row">@result.city</td>
+
+                @foreach (var time in times)
+                {
+                    <th scope="row">@GetTemperature(result, time) &deg;</th>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code
+{
+    [Parameter]
+    public List<Result> results { get; set; }
+    private string[] times { get; set; } = {
+        "6 AM",
+        "12 PM",
+        "6 PM",
+        "12 AM"
+    };
+
+    private string GetTemperature(Result result, string time)
+    {
+        DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        ResultWeather weather = Array.Find(result.weather, a => origin.AddSeconds(a.timestamp).ToString("h tt") == time);
+
+        if (weather != null) {
+            return weather.temperature.ToString();
+        }
+
+        return null;
+    }
+}
