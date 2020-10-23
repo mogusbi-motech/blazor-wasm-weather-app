@@ -23,7 +23,7 @@
         Dictionary<string, string> urlParams = new Dictionary<string, string>();
         Settings settings = Configuration.Get<Settings>();
         
-        urlParams.Add("APPID", settings.ApiKey);
+        urlParams.Add("appid", settings.ApiKey);
         urlParams.Add("cnt", "8");
         urlParams.Add("q", city);
         urlParams.Add("units", "metric");
